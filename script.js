@@ -180,6 +180,93 @@ function handleDeleteTask(taskId) {
     renderTasks();
 }
 
+// Функция для редактирования даты задачи
+function editTaskDate(taskId, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    const listItem = document.querySelector(`li[data-task-id="${taskId}"]`);
+    if (!listItem) return;
+    
+    const taskDateElement = listItem.querySelector('.task-date');
+    if (!taskDateElement) return;
+    
+    // Создаем поле ввода для редактирования даты
+    const editInput = document.createElement('input');
+    editInput.setAttribute('type', 'text');
+    editInput.className = 'task-date-edit-input';
+    editInput.setAttribute('placeholder', 'дд.мм.гггг');
+    editInput.setAttribute('maxlength', '10');
+    editInput.value = task.date || '';
+    
+    // Добавляем обработчик форматирования при вводе
+    editInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0) {
+            if (value.length <= 2) {
+                value = value;
+            } else if (value.length <= 4) {
+                value = value.slice(0, 2) + '.' + value.slice(2);
+            } else {
+                value = value.slice(0, 2) + '.' + value.slice(2, 4) + '.' + value.slice(4, 8);
+            }
+        }
+        e.target.value = value;
+    });
+    
+    // Заменяем дату на поле ввода
+    taskDateElement.replaceWith(editInput);
+    editInput.focus();
+    editInput.select();
+    
+    // Обработчик сохранения при потере фокуса или нажатии Enter
+    const saveEdit = () => {
+        const newDate = editInput.value.trim();
+        const datePattern = /^(\d{2})\.(\d{2})\.(\d{4})$/;
+        const match = newDate.match(datePattern);
+        
+        if (newDate === '') {
+            // Если дата пустая, удаляем её
+            task.date = '';
+            saveTasks();
+            renderTasks();
+        } else if (match) {
+            const day = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10);
+            const year = parseInt(match[3], 10);
+            // Проверяем валидность даты
+            const date = new Date(year, month - 1, day);
+            if (date.getDate() === day && date.getMonth() === month - 1 && date.getFullYear() === year) {
+                task.date = newDate;
+                saveTasks();
+                renderTasks();
+            } else {
+                // Невалидная дата, восстанавливаем оригинал
+                renderTasks();
+            }
+        } else {
+            // Неправильный формат, восстанавливаем оригинал
+            renderTasks();
+        }
+    };
+    
+    editInput.addEventListener('blur', saveEdit);
+    editInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            editInput.blur();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            renderTasks();
+        }
+    });
+}
+
 // Функция для редактирования задачи
 function editTask(taskId, event) {
     if (event) {
@@ -250,6 +337,12 @@ function renderTasks() {
             const taskDate = document.createElement('div');
             taskDate.className = 'task-date';
             taskDate.textContent = task.date;
+            // Добавляем обработчик правого клика для редактирования даты
+            taskDate.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                editTaskDate(task.id, e);
+            });
             listItem.append(taskDate);
             
             // Добавляем разделительную линию
