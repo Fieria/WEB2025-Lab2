@@ -180,6 +180,59 @@ function handleDeleteTask(taskId) {
     renderTasks();
 }
 
+// Функция для редактирования задачи
+function editTask(taskId, event) {
+    if (event) {
+        event.preventDefault();
+    }
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    const listItem = document.querySelector(`li[data-task-id="${taskId}"]`);
+    if (!listItem) return;
+    
+    const taskTextElement = listItem.querySelector('.task-text');
+    if (!taskTextElement) return;
+    
+    // Создаем поле ввода для редактирования
+    const editInput = document.createElement('input');
+    editInput.setAttribute('type', 'text');
+    editInput.className = 'task-edit-input';
+    editInput.value = task.text;
+    
+    // Заменяем текст на поле ввода
+    taskTextElement.replaceWith(editInput);
+    editInput.focus();
+    editInput.select();
+    
+    // Обработчик сохранения при потере фокуса или нажатии Enter
+    const saveEdit = () => {
+        const newText = editInput.value.trim();
+        if (newText !== '' && newText !== task.text) {
+            task.text = newText;
+            saveTasks();
+            renderTasks();
+        } else if (newText === '') {
+            // Если текст пустой, восстанавливаем оригинал
+            renderTasks();
+        } else {
+            renderTasks();
+        }
+    };
+    
+    editInput.addEventListener('blur', saveEdit);
+    editInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            editInput.blur();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            renderTasks();
+        }
+    });
+}
+
 // Функция для отображения списка задач
 function renderTasks() {
     const taskList = document.getElementById('task-list');
@@ -190,21 +243,40 @@ function renderTasks() {
     // Создаем элементы для каждой задачи через методы DOM
     tasks.forEach(task => {
         const listItem = document.createElement('li');
+        listItem.setAttribute('data-task-id', task.id);
+        
+        // Если есть дата, отображаем её вверху
+        if (task.date) {
+            const taskDate = document.createElement('div');
+            taskDate.className = 'task-date';
+            taskDate.textContent = task.date;
+            listItem.append(taskDate);
+            
+            // Добавляем разделительную линию
+            const separator = document.createElement('hr');
+            separator.className = 'task-separator';
+            listItem.append(separator);
+        }
         
         const taskText = document.createElement('span');
         taskText.className = 'task-text';
-        let displayText = task.text;
-        if (task.date) {
-            displayText += ` (${task.date})`;
-        }
-        taskText.textContent = displayText;
+        taskText.textContent = task.text;
         listItem.append(taskText);
+        
+        // Добавляем обработчик правого клика для редактирования
+        listItem.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            editTask(task.id, e);
+        });
         
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-btn';
         deleteButton.textContent = '×';
         deleteButton.setAttribute('aria-label', `Удалить задачу: ${task.text}`);
-        deleteButton.addEventListener('click', () => handleDeleteTask(task.id));
+        deleteButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleDeleteTask(task.id);
+        });
         listItem.append(deleteButton);
         
         taskList.append(listItem);
