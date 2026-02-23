@@ -151,7 +151,8 @@ function handleAddTask(event) {
     const task = {
         id: Date.now(),
         text: taskText,
-        date: dateValue
+        date: dateValue,
+        completed: false
     };
     
     tasks.push(task);
@@ -178,6 +179,16 @@ function handleDeleteTask(taskId) {
     tasks = tasks.filter(task => task.id !== taskId);
     saveTasks();
     renderTasks();
+}
+
+// Функция для переключения статуса выполнения задачи
+function toggleTaskCompletion(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = !task.completed;
+        saveTasks();
+        renderTasks();
+    }
 }
 
 // Функция для редактирования даты задачи
@@ -331,6 +342,23 @@ function renderTasks() {
         const listItem = document.createElement('li');
         listItem.setAttribute('data-task-id', task.id);
         
+        // Добавляем класс для выполненных задач
+        if (task.completed) {
+            listItem.className = 'task-completed';
+        }
+        
+        // Создаем чекбокс для отметки выполнения
+        const checkbox = document.createElement('input');
+        checkbox.setAttribute('type', 'checkbox');
+        checkbox.className = 'task-checkbox';
+        checkbox.checked = task.completed || false;
+        checkbox.setAttribute('aria-label', `Отметить задачу как выполненную: ${task.text}`);
+        checkbox.addEventListener('change', (e) => {
+            e.stopPropagation();
+            toggleTaskCompletion(task.id);
+        });
+        listItem.append(checkbox);
+        
         // Всегда создаем элемент для даты (даже если она пустая)
         const taskDate = document.createElement('div');
         taskDate.className = 'task-date';
@@ -387,6 +415,13 @@ function loadTasks() {
     const savedTasks = localStorage.getItem('tasks');
     if (savedTasks) {
         tasks = JSON.parse(savedTasks);
+        // Убеждаемся, что у всех задач есть поле completed
+        tasks.forEach(task => {
+            if (task.completed === undefined) {
+                task.completed = false;
+            }
+        });
+        saveTasks(); // Сохраняем обновленные задачи
         renderTasks();
     }
 }
