@@ -42,6 +42,69 @@ function initApp() {
     loadTasks();
 }
 
+// Функция для обработки добавления новой задачи
+function handleAddTask(event) {
+    event.preventDefault();
+    
+    const input = event.target.querySelector('input[type="text"]');
+    const taskText = input.value.trim();
+    
+    if (taskText === '') {
+        return;
+    }
+    
+    // Добавляем задачу в массив
+    const task = {
+        id: Date.now(),
+        text: taskText
+    };
+    
+    tasks.push(task);
+    
+    // Сохраняем в localStorage
+    saveTasks();
+    
+    // Очищаем поле ввода
+    input.value = '';
+    
+    // Обновляем отображение списка
+    renderTasks();
+}
+
+// Функция для удаления задачи
+function handleDeleteTask(taskId) {
+    tasks = tasks.filter(task => task.id !== taskId);
+    saveTasks();
+    renderTasks();
+}
+
+// Функция для отображения списка задач
+function renderTasks() {
+    const taskList = document.getElementById('task-list');
+    
+    // Очищаем список
+    taskList.innerHTML = '';
+    
+    // Создаем элементы для каждой задачи
+    tasks.forEach(task => {
+        const listItem = document.createElement('li');
+        
+        const taskText = document.createElement('span');
+        taskText.className = 'task-text';
+        taskText.textContent = task.text;
+        listItem.appendChild(taskText);
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-btn';
+        deleteButton.textContent = 'Удалить';
+        deleteButton.setAttribute('aria-label', `Удалить задачу: ${task.text}`);
+        deleteButton.addEventListener('click', () => handleDeleteTask(task.id));
+        listItem.appendChild(deleteButton);
+        
+        taskList.appendChild(listItem);
+    });
+}
+
 
 
 // Инициализация приложения при загрузке страницы
