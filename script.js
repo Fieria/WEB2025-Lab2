@@ -44,7 +44,11 @@ function initApp() {
     const datePicker = document.createElement('input');
     datePicker.setAttribute('type', 'date');
     datePicker.setAttribute('id', 'task-date-picker');
-    datePicker.setAttribute('style', 'position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;');
+    datePicker.style.position = 'absolute';
+    datePicker.style.opacity = '0';
+    datePicker.style.width = '0';
+    datePicker.style.height = '0';
+    datePicker.style.pointerEvents = 'none';
     datePicker.addEventListener('change', handleDatePickerChange);
     dateContainer.append(datePicker);
     
@@ -444,8 +448,10 @@ function editTask(taskId, event) {
 function renderTasks() {
     const taskList = document.getElementById('task-list');
     
-    // Очищаем список
-    taskList.innerHTML = '';
+    // Очищаем список через методы DOM
+    while (taskList.firstChild) {
+        taskList.removeChild(taskList.firstChild);
+    }
     
     // Фильтруем задачи по поисковому запросу и статусу
     let filteredTasks = tasks.filter(task => {
