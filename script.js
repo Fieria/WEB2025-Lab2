@@ -13,6 +13,7 @@ function initApp() {
     
     // Создаем форму для добавления задач
     const form = document.createElement('form');
+    form.addEventListener('submit', handleAddTask);
     
     // Создаем поле ввода
     const input = document.createElement('input');
@@ -23,7 +24,7 @@ function initApp() {
     
     // Создаем кнопку добавления
     const addButton = document.createElement('button');
-    addButton.type = 'button';
+    addButton.type = 'submit';
     addButton.textContent = 'Добавить задачу';
     form.appendChild(addButton);
     
