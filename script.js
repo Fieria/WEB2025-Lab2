@@ -2,6 +2,7 @@
 let tasks = [];
 let searchQuery = ''; // Переменная для хранения поискового запроса
 let statusFilter = 'all'; // Переменная для фильтрации по статусу: 'all', 'completed', 'active'
+let sortOrder = 'none'; // Переменная для сортировки: 'none', 'date-asc', 'date-desc'
 
 // Функция для создания и добавления элементов на страницу
 function initApp() {
@@ -111,6 +112,38 @@ function initApp() {
     filterSelect.addEventListener('change', handleStatusFilter);
     filterContainer.append(filterSelect);
     
+    // Создаем контейнер для сортировки по дате
+    const sortContainer = document.createElement('div');
+    sortContainer.setAttribute('class', 'sort-container');
+    
+    const sortLabel = document.createElement('label');
+    sortLabel.textContent = 'Сортировка: ';
+    sortLabel.setAttribute('for', 'sort-select');
+    sortContainer.append(sortLabel);
+    
+    const sortSelect = document.createElement('select');
+    sortSelect.setAttribute('id', 'sort-select');
+    sortSelect.setAttribute('aria-label', 'Сортировка задач по дате');
+    
+    const optionNone = document.createElement('option');
+    optionNone.setAttribute('value', 'none');
+    optionNone.textContent = 'Без сортировки';
+    sortSelect.append(optionNone);
+    
+    const optionAsc = document.createElement('option');
+    optionAsc.setAttribute('value', 'date-asc');
+    optionAsc.textContent = 'По дате (возрастание)';
+    sortSelect.append(optionAsc);
+    
+    const optionDesc = document.createElement('option');
+    optionDesc.setAttribute('value', 'date-desc');
+    optionDesc.textContent = 'По дате (убывание)';
+    sortSelect.append(optionDesc);
+    
+    sortSelect.addEventListener('change', handleSort);
+    sortContainer.append(sortSelect);
+    
+    filterContainer.append(sortContainer);
     searchContainer.append(filterContainer);
     main.append(searchContainer);
     
@@ -232,6 +265,23 @@ function handleSearch(event) {
 function handleStatusFilter(event) {
     statusFilter = event.target.value;
     renderTasks();
+}
+
+// Функция для обработки сортировки
+function handleSort(event) {
+    sortOrder = event.target.value;
+    renderTasks();
+}
+
+// Функция для преобразования даты из формата дд.мм.гггг в Date объект
+function parseDate(dateString) {
+    if (!dateString) return null;
+    const match = dateString.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (!match) return null;
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
+    const year = parseInt(match[3], 10);
+    return new Date(year, month - 1, day);
 }
 
 // Функция для удаления задачи
@@ -398,7 +448,7 @@ function renderTasks() {
     taskList.innerHTML = '';
     
     // Фильтруем задачи по поисковому запросу и статусу
-    const filteredTasks = tasks.filter(task => {
+    let filteredTasks = tasks.filter(task => {
         // Фильтр по поисковому запросу
         const matchesSearch = !searchQuery || task.text.toLowerCase().includes(searchQuery);
         
@@ -412,6 +462,26 @@ function renderTasks() {
         
         return matchesSearch && matchesStatus;
     });
+    
+    // Сортируем задачи по дате
+    if (sortOrder === 'date-asc' || sortOrder === 'date-desc') {
+        filteredTasks.sort((a, b) => {
+            const dateA = parseDate(a.date);
+            const dateB = parseDate(b.date);
+            
+            // Задачи без даты идут в конец при сортировке по возрастанию
+            // и в начало при сортировке по убыванию
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return sortOrder === 'date-asc' ? 1 : -1;
+            if (!dateB) return sortOrder === 'date-asc' ? -1 : 1;
+            
+            if (sortOrder === 'date-asc') {
+                return dateA - dateB;
+            } else {
+                return dateB - dateA;
+            }
+        });
+    }
     
     // Создаем элементы для каждой задачи через методы DOM
     filteredTasks.forEach(task => {

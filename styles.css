@@ -82,6 +82,35 @@ form:first-of-type {
     border-color: #7d6c65;
 }
 
+.sort-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.sort-container label {
+    font-family: cursive;
+    color: #333;
+    font-weight: bold;
+}
+
+#sort-select {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: cursive;
+    background-color: white;
+    cursor: pointer;
+    min-width: 180px;
+}
+
+#sort-select:focus {
+    outline: none;
+    border-color: #7d6c65;
+}
+
 #tasks-form {
     margin-top: 30px;
     padding: 20px;
