@@ -202,7 +202,7 @@ function renderTasks() {
         
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-btn';
-        deleteButton.textContent = 'Удалить';
+        deleteButton.textContent = '×';
         deleteButton.setAttribute('aria-label', `Удалить задачу: ${task.text}`);
         deleteButton.addEventListener('click', () => handleDeleteTask(task.id));
         listItem.append(deleteButton);
