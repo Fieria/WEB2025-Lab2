@@ -183,7 +183,6 @@ function handleDeleteTask(taskId) {
 // Функция для редактирования даты задачи
 function editTaskDate(taskId, event) {
     if (event) {
-        event.preventDefault();
         event.stopPropagation();
     }
     
@@ -270,7 +269,7 @@ function editTaskDate(taskId, event) {
 // Функция для редактирования задачи
 function editTask(taskId, event) {
     if (event) {
-        event.preventDefault();
+        event.stopPropagation();
     }
     
     const task = tasks.find(t => t.id === taskId);
@@ -332,35 +331,37 @@ function renderTasks() {
         const listItem = document.createElement('li');
         listItem.setAttribute('data-task-id', task.id);
         
-        // Если есть дата, отображаем её вверху
+        // Всегда создаем элемент для даты (даже если она пустая)
+        const taskDate = document.createElement('div');
+        taskDate.className = 'task-date';
         if (task.date) {
-            const taskDate = document.createElement('div');
-            taskDate.className = 'task-date';
             taskDate.textContent = task.date;
-            // Добавляем обработчик правого клика для редактирования даты
-            taskDate.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                editTaskDate(task.id, e);
-            });
-            listItem.append(taskDate);
-            
-            // Добавляем разделительную линию
-            const separator = document.createElement('hr');
-            separator.className = 'task-separator';
-            listItem.append(separator);
+        } else {
+            // Оставляем пустое место для даты
+            taskDate.textContent = '\u00A0'; // Неразрывный пробел для сохранения высоты
+            taskDate.style.minHeight = '1.2em';
         }
+        // Добавляем обработчик левого клика для редактирования/добавления даты
+        taskDate.addEventListener('click', (e) => {
+            e.stopPropagation();
+            editTaskDate(task.id, e);
+        });
+        listItem.append(taskDate);
+        
+        // Всегда добавляем разделительную линию
+        const separator = document.createElement('hr');
+        separator.className = 'task-separator';
+        listItem.append(separator);
         
         const taskText = document.createElement('span');
         taskText.className = 'task-text';
         taskText.textContent = task.text;
-        listItem.append(taskText);
-        
-        // Добавляем обработчик правого клика для редактирования
-        listItem.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
+        // Добавляем обработчик левого клика для редактирования текста
+        taskText.addEventListener('click', (e) => {
+            e.stopPropagation();
             editTask(task.id, e);
         });
+        listItem.append(taskText);
         
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-btn';
