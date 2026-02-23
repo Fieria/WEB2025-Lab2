@@ -1,5 +1,6 @@
 // Массив для хранения задач
 let tasks = [];
+let searchQuery = ''; // Переменная для хранения поискового запроса
 
 // Функция для создания и добавления элементов на страницу
 function initApp() {
@@ -65,6 +66,20 @@ function initApp() {
     form.append(addButton);
     
     main.append(form);
+    
+    // Создаем поле поиска
+    const searchContainer = document.createElement('div');
+    searchContainer.setAttribute('class', 'search-container');
+    
+    const searchInput = document.createElement('input');
+    searchInput.setAttribute('type', 'text');
+    searchInput.setAttribute('id', 'search-input');
+    searchInput.setAttribute('placeholder', 'Поиск задач...');
+    searchInput.setAttribute('aria-label', 'Поле для поиска задач');
+    searchInput.addEventListener('input', handleSearch);
+    searchContainer.append(searchInput);
+    
+    main.append(searchContainer);
     
     // Создаем форму для отображения задач
     const tasksForm = document.createElement('form');
@@ -171,6 +186,12 @@ function handleAddTask(event) {
     }
     
     // Обновляем отображение списка
+    renderTasks();
+}
+
+// Функция для обработки поиска
+function handleSearch(event) {
+    searchQuery = event.target.value.toLowerCase().trim();
     renderTasks();
 }
 
@@ -337,8 +358,16 @@ function renderTasks() {
     // Очищаем список
     taskList.innerHTML = '';
     
+    // Фильтруем задачи по поисковому запросу
+    const filteredTasks = tasks.filter(task => {
+        if (!searchQuery) {
+            return true; // Если поиск пустой, показываем все задачи
+        }
+        return task.text.toLowerCase().includes(searchQuery);
+    });
+    
     // Создаем элементы для каждой задачи через методы DOM
-    tasks.forEach(task => {
+    filteredTasks.forEach(task => {
         const listItem = document.createElement('li');
         listItem.setAttribute('data-task-id', task.id);
         
