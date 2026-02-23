@@ -105,7 +105,19 @@ function renderTasks() {
     });
 }
 
+// Функция для сохранения задач в localStorage
+function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
 
+// Функция для загрузки задач из localStorage
+function loadTasks() {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+        renderTasks();
+    }
+}
 
 // Инициализация приложения при загрузке страницы
 document.addEventListener('DOMContentLoaded', initApp);
