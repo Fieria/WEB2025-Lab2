@@ -27,6 +27,7 @@ h1 {
 
 form:first-of-type {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 30px;
 }
@@ -35,6 +36,7 @@ form:first-of-type {
     margin-bottom: 20px;
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     align-items: center;
 }
@@ -205,6 +207,123 @@ ul {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 20px;
+}
+
+/* Адаптивный дизайн для разных устройств */
+@media (max-width: 1200px) {
+    ul {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    ul {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    ul {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    main {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    form:first-of-type {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .date-input-container {
+        width: 100%;
+    }
+    
+    #task-date {
+        width: 100%;
+        flex: 1;
+    }
+    
+    .search-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .sort-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    #status-filter,
+    #sort-select {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    ul {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    main {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
+    
+    form:first-of-type {
+        margin-bottom: 20px;
+    }
+    
+    #tasks-form {
+        padding: 10px;
+        margin-top: 20px;
+    }
+    
+    li {
+        min-height: 80px;
+        padding: 10px;
+    }
+    
+    button {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    .calendar-btn {
+        padding: 10px 12px;
+        font-size: 16px;
+    }
+    
+    input[type="text"],
+    #search-input {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    #status-filter,
+    #sort-select {
+        font-size: 14px;
+        padding: 8px;
+    }
 }
 
 li {
