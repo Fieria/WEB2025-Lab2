@@ -1,6 +1,7 @@
 // Массив для хранения задач
 let tasks = [];
 let searchQuery = ''; // Переменная для хранения поискового запроса
+let statusFilter = 'all'; // Переменная для фильтрации по статусу: 'all', 'completed', 'active'
 
 // Функция для создания и добавления элементов на страницу
 function initApp() {
@@ -67,7 +68,7 @@ function initApp() {
     
     main.append(form);
     
-    // Создаем поле поиска
+    // Создаем контейнер для поиска и фильтрации
     const searchContainer = document.createElement('div');
     searchContainer.setAttribute('class', 'search-container');
     
@@ -79,6 +80,38 @@ function initApp() {
     searchInput.addEventListener('input', handleSearch);
     searchContainer.append(searchInput);
     
+    // Создаем контейнер для фильтрации по статусу
+    const filterContainer = document.createElement('div');
+    filterContainer.setAttribute('class', 'filter-container');
+    
+    const filterLabel = document.createElement('label');
+    filterLabel.textContent = 'Фильтр: ';
+    filterLabel.setAttribute('for', 'status-filter');
+    filterContainer.append(filterLabel);
+    
+    const filterSelect = document.createElement('select');
+    filterSelect.setAttribute('id', 'status-filter');
+    filterSelect.setAttribute('aria-label', 'Фильтр задач по статусу');
+    
+    const optionAll = document.createElement('option');
+    optionAll.setAttribute('value', 'all');
+    optionAll.textContent = 'Все задачи';
+    filterSelect.append(optionAll);
+    
+    const optionActive = document.createElement('option');
+    optionActive.setAttribute('value', 'active');
+    optionActive.textContent = 'Невыполненные';
+    filterSelect.append(optionActive);
+    
+    const optionCompleted = document.createElement('option');
+    optionCompleted.setAttribute('value', 'completed');
+    optionCompleted.textContent = 'Выполненные';
+    filterSelect.append(optionCompleted);
+    
+    filterSelect.addEventListener('change', handleStatusFilter);
+    filterContainer.append(filterSelect);
+    
+    searchContainer.append(filterContainer);
     main.append(searchContainer);
     
     // Создаем форму для отображения задач
@@ -192,6 +225,12 @@ function handleAddTask(event) {
 // Функция для обработки поиска
 function handleSearch(event) {
     searchQuery = event.target.value.toLowerCase().trim();
+    renderTasks();
+}
+
+// Функция для обработки фильтрации по статусу
+function handleStatusFilter(event) {
+    statusFilter = event.target.value;
     renderTasks();
 }
 
@@ -358,12 +397,20 @@ function renderTasks() {
     // Очищаем список
     taskList.innerHTML = '';
     
-    // Фильтруем задачи по поисковому запросу
+    // Фильтруем задачи по поисковому запросу и статусу
     const filteredTasks = tasks.filter(task => {
-        if (!searchQuery) {
-            return true; // Если поиск пустой, показываем все задачи
+        // Фильтр по поисковому запросу
+        const matchesSearch = !searchQuery || task.text.toLowerCase().includes(searchQuery);
+        
+        // Фильтр по статусу
+        let matchesStatus = true;
+        if (statusFilter === 'completed') {
+            matchesStatus = task.completed === true;
+        } else if (statusFilter === 'active') {
+            matchesStatus = task.completed !== true;
         }
-        return task.text.toLowerCase().includes(searchQuery);
+        
+        return matchesSearch && matchesStatus;
     });
     
     // Создаем элементы для каждой задачи через методы DOM
